@@ -7,6 +7,11 @@ compatibility_date = "2024-01-01"
 binding = "TRUMP_KV"
 id = "82bfdc175ad84feb8073147daadcf0f0"
 
+# 自定义域名
+[[routes]]
+pattern = "trump-x.chuankangkk.top"
+custom_domain = true
+
 # Cron触发器：每分钟执行一次
 [triggers]
 crons = ["* * * * *"]
