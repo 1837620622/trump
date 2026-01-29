@@ -5,9 +5,10 @@
 // ============================================================
 
 // ---------------------- 配置区域 ----------------------
+// 敏感信息通过环境变量配置，不在代码中硬编码
 const CONFIG = {
-  // PushPlus配置
-  PUSHPLUS_TOKEN: '7dba765a07dc482487fefdc88cdd7e11',
+  // PushPlus配置（通过 wrangler secret 设置）
+  // PUSHPLUS_TOKEN: 从 env.PUSHPLUS_TOKEN 获取
   PUSHPLUS_TOPIC: 'trump',
   PUSHPLUS_API: 'http://www.pushplus.plus/send',
   
@@ -145,13 +146,20 @@ async function fetchRSS(url) {
 }
 
 // ---------------------- PushPlus推送 ----------------------
-async function sendToPushPlus(title, content) {
+async function sendToPushPlus(title, content, env) {
   try {
+    // 从环境变量获取 Token
+    const token = env?.PUSHPLUS_TOKEN || '';
+    if (!token) {
+      console.error('PUSHPLUS_TOKEN 未配置');
+      return false;
+    }
+    
     const response = await fetch(CONFIG.PUSHPLUS_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        token: CONFIG.PUSHPLUS_TOKEN,
+        token: token,
         title: title,
         content: content,
         topic: CONFIG.PUSHPLUS_TOPIC,
@@ -256,7 +264,7 @@ async function checkNewTweets(env) {
   
   for (const item of itemsToPush) {
     const message = await formatTweetMessage(item);
-    const success = await sendToPushPlus('🐦 特朗普新推文', message);
+    const success = await sendToPushPlus('🐦 特朗普新推文', message, env);
     
     if (success) {
       pushedCount++;
