@@ -4,19 +4,21 @@
 # 日志文件
 *.log
 
-# Python 缓存
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+# Environment files
+.env
 
-# 虚拟环境
-venv/
-env/
-.venv/
+# Log files
+*.log
+
+# Node modules
+node_modules/
 
 # IDE
+.vscode/
 .idea/
+
+# OS
+.DS_Store
 .vscode/
 *.swp
 *.swo

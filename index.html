@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trump Tweet Monitor | 特朗普推文监控</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        trump: { red: '#C8102E', blue: '#002868', gold: '#FFD700' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+        .gradient-bg { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
+        .tweet-card { transition: all 0.3s ease; }
+        .tweet-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .shimmer { background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .pulse-dot { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen font-sans text-white">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass border-b border-white/10">
+        <div class="max-w-6xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-trump-red to-trump-blue flex items-center justify-center text-2xl">🦅</div>
+                    <div>
+                        <h1 class="text-xl font-bold">Trump Tweet Monitor</h1>
+                        <p class="text-sm text-gray-400">特朗普推文实时监控</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></span>
+                        <span class="text-gray-400">实时更新</span>
+                    </div>
+                    <button onclick="refreshTweets()" class="px-4 py-2 bg-trump-blue hover:bg-blue-700 rounded-lg transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        刷新
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="max-w-6xl mx-auto px-4 py-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass rounded-xl p-4 border border-white/10">
+                <div class="text-3xl font-bold text-trump-gold" id="totalTweets">--</div>
+                <div class="text-sm text-gray-400">总推文数</div>
+            </div>
+            <div class="glass rounded-xl p-4 border border-white/10">
+                <div class="text-3xl font-bold text-green-400" id="todayTweets">--</div>
+                <div class="text-sm text-gray-400">今日更新</div>
+            </div>
+            <div class="glass rounded-xl p-4 border border-white/10">
+                <div class="text-3xl font-bold text-blue-400" id="lastUpdate">--</div>
+                <div class="text-sm text-gray-400">最后更新</div>
+            </div>
+            <div class="glass rounded-xl p-4 border border-white/10">
+                <div class="text-3xl font-bold text-purple-400" id="sourceCount">2</div>
+                <div class="text-sm text-gray-400">数据源</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 pb-12">
+        <!-- Loading State -->
+        <div id="loading" class="space-y-4">
+            <div class="glass rounded-2xl p-6 border border-white/10 shimmer h-48"></div>
+            <div class="glass rounded-2xl p-6 border border-white/10 shimmer h-48"></div>
+            <div class="glass rounded-2xl p-6 border border-white/10 shimmer h-48"></div>
+        </div>
+
+        <!-- Tweets Container -->
+        <div id="tweetsContainer" class="space-y-4 hidden"></div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden text-center py-12">
+            <div class="text-6xl mb-4">😕</div>
+            <h3 class="text-xl font-semibold mb-2">加载失败</h3>
+            <p class="text-gray-400 mb-4">无法获取推文数据，请稍后重试</p>
+            <button onclick="refreshTweets()" class="px-6 py-2 bg-trump-blue hover:bg-blue-700 rounded-lg transition">重新加载</button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-8 mt-12">
+        <div class="max-w-6xl mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>Powered by Cloudflare Workers | 数据来源: RSS.app</p>
+            <p class="mt-2">© 2026 Trump Tweet Monitor. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // 配置
+        const CONFIG = {
+            RSS_URLS: [
+                'https://rss.app/feeds/l99qSNS36fUTlQo9.xml',
+                'https://rss.app/feeds/6FnbJXMy93igKIxb.xml'
+            ],
+            TRANSLATE_API: 'https://api.mymemory.translated.net/get',
+            CORS_PROXY: 'https://api.allorigins.win/raw?url='
+        };
+
+        // 翻译缓存
+        const translateCache = new Map();
+
+        // 翻译函数
+        async function translateText(text) {
+            if (!text || text.length < 5) return text;
+            if (translateCache.has(text)) return translateCache.get(text);
+            
+            try {
+                const truncated = text.substring(0, 400);
+                const url = `${CONFIG.TRANSLATE_API}?q=${encodeURIComponent(truncated)}&langpair=en|zh-CN`;
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.responseStatus === 200 && result.responseData?.translatedText) {
+                    const translated = result.responseData.translatedText;
+                    translateCache.set(text, translated);
+                    return translated;
+                }
+            } catch (e) {
+                console.error('翻译失败:', e);
+            }
+            return text;
+        }
+
+        // 解析RSS
+        function parseRSS(xmlText) {
+            const items = [];
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(xmlText, 'text/xml');
+            const itemElements = xml.querySelectorAll('item');
+            
+            itemElements.forEach(item => {
+                const title = item.querySelector('title')?.textContent || '';
+                const link = item.querySelector('link')?.textContent || '';
+                const guid = item.querySelector('guid')?.textContent || '';
+                const pubDate = item.querySelector('pubDate')?.textContent || '';
+                const creator = item.querySelector('creator')?.textContent || '';
+                const mediaUrl = item.querySelector('content')?.getAttribute('url') || '';
+                
+                if (title && guid) {
+                    items.push({ title, link, guid, pubDate, creator, mediaUrl });
+                }
+            });
+            
+            return items;
+        }
+
+        // 格式化时间
+        function formatTime(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = (now - date) / 1000;
+            
+            if (diff < 60) return '刚刚';
+            if (diff < 3600) return `${Math.floor(diff / 60)} 分钟前`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)} 小时前`;
+            if (diff < 604800) return `${Math.floor(diff / 86400)} 天前`;
+            
+            return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+        }
+
+        // 创建推文卡片
+        async function createTweetCard(item, index) {
+            const translated = await translateText(item.title);
+            const timeAgo = formatTime(item.pubDate);
+            
+            return `
+                <article class="tweet-card glass rounded-2xl p-6 border border-white/10" style="animation: fadeIn 0.5s ease ${index * 0.1}s both">
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-trump-red to-trump-blue flex items-center justify-center text-xl">🐦</div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="font-semibold">${item.creator || '@TrumpDailyPosts'}</span>
+                                <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                <span class="text-gray-500 text-sm">· ${timeAgo}</span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <p class="text-gray-200 leading-relaxed">${item.title}</p>
+                            </div>
+                            
+                            <div class="bg-white/5 rounded-lg p-3 mb-3 border-l-4 border-trump-gold">
+                                <div class="flex items-center gap-2 text-trump-gold text-sm mb-1">
+                                    <span>🇨🇳</span>
+                                    <span>中文翻译</span>
+                                </div>
+                                <p class="text-gray-300">${translated}</p>
+                            </div>
+                            
+                            ${item.mediaUrl ? `
+                                <div class="rounded-xl overflow-hidden mb-3">
+                                    <img src="${item.mediaUrl}" alt="Tweet media" class="w-full max-h-80 object-cover" loading="lazy" onerror="this.style.display='none'">
+                                </div>
+                            ` : ''}
+                            
+                            <div class="flex items-center justify-between text-gray-500">
+                                <a href="${item.link}" target="_blank" class="flex items-center gap-2 hover:text-blue-400 transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    查看原文
+                                </a>
+                                <span class="text-xs">${new Date(item.pubDate).toLocaleString('zh-CN')}</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
+        // 获取并显示推文
+        async function refreshTweets() {
+            const loading = document.getElementById('loading');
+            const container = document.getElementById('tweetsContainer');
+            const errorState = document.getElementById('errorState');
+            
+            loading.classList.remove('hidden');
+            container.classList.add('hidden');
+            errorState.classList.add('hidden');
+            
+            let allItems = [];
+            
+            for (const url of CONFIG.RSS_URLS) {
+                try {
+                    const response = await fetch(CONFIG.CORS_PROXY + encodeURIComponent(url));
+                    if (response.ok) {
+                        const xmlText = await response.text();
+                        const items = parseRSS(xmlText);
+                        allItems = allItems.concat(items);
+                    }
+                } catch (e) {
+                    console.error('获取RSS失败:', url, e);
+                }
+            }
+            
+            if (allItems.length === 0) {
+                loading.classList.add('hidden');
+                errorState.classList.remove('hidden');
+                return;
+            }
+            
+            // 去重和排序
+            const seen = new Set();
+            const uniqueItems = allItems.filter(item => {
+                if (seen.has(item.guid)) return false;
+                seen.add(item.guid);
+                return true;
+            }).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+            
+            // 更新统计
+            document.getElementById('totalTweets').textContent = uniqueItems.length;
+            const today = new Date().toDateString();
+            const todayCount = uniqueItems.filter(item => new Date(item.pubDate).toDateString() === today).length;
+            document.getElementById('todayTweets').textContent = todayCount;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+            
+            // 渲染推文（显示前20条）
+            const displayItems = uniqueItems.slice(0, 20);
+            const cards = await Promise.all(displayItems.map((item, i) => createTweetCard(item, i)));
+            
+            container.innerHTML = cards.join('');
+            loading.classList.add('hidden');
+            container.classList.remove('hidden');
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }`;
+        document.head.appendChild(style);
+
+        // 页面加载时获取推文
+        document.addEventListener('DOMContentLoaded', refreshTweets);
+        
+        // 每分钟自动刷新
+        setInterval(refreshTweets, 60000);
+    </script>
+</body>
+</html>

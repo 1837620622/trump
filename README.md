@@ -1,60 +1,111 @@
-# 特朗普推特监控器
+# 🦅 Trump Tweet Monitor
 
-这个程序会监控特朗普的推特账号，当有新推文发布时，自动通过 PushPlus 推送到微信。
+实时监控特朗普的Twitter/X推文，自动翻译成中文并推送到微信。
 
-## 功能特点
+![Demo](https://img.shields.io/badge/Demo-Live-green) ![Cloudflare](https://img.shields.io/badge/Cloudflare-Workers-orange) ![License](https://img.shields.io/badge/License-MIT-blue)
 
-- 通过 RSS 源实时监控特朗普的推特账号
-- 自动将新推文推送到微信（通过 PushPlus）
-- 支持群组推送，一次发送多人接收
-- 包含推文时间、内容和链接
-- 每5分钟检查一次更新
-- 错误自动重试机制
+## ✨ 功能特点
 
-## 安装步骤
+- 🚀 **Cloudflare Workers** - 无服务器架构，全球边缘节点
+- 🔄 **实时监控** - 每分钟自动检测新推文
+- 🌐 **自动翻译** - 英文推文自动翻译成中文
+- 📱 **微信推送** - 通过PushPlus推送到微信
+- 🎨 **精美网页** - 响应式设计，支持图片展示
+- 📊 **多数据源** - 支持多个RSS源聚合
 
-1. 克隆项目到本地
-2. 安装依赖：
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 📁 项目结构
 
-3. 配置环境变量：
-   - 复制 `.env.example` 为 `.env`
-   - 填写 PushPlus 相关的配置信息
-
-## 配置说明
-
-### PushPlus 配置
-1. 访问 [PushPlus 官网](https://www.pushplus.plus/) 并关注微信公众号
-2. 获取你的用户 Token
-3. 创建群组并获取群组编码（可选，用于一对多推送）
-4. 将信息填入 `.env` 文件：
-   ```
-   PUSHPLUS_TOKEN=your_token
-   PUSHPLUS_TOPIC=your_topic_code
-   ```
-
-## 本地运行
-
-```bash
-python trump_tweet_monitor.py
+```
+trump/
+├── cloudflare-worker.js  # Cloudflare Worker 主脚本
+├── index.html            # 精美网页展示
+├── test-worker.js        # 本地测试脚本
+├── wrangler.toml         # Cloudflare 部署配置
+└── README.md             # 项目文档
 ```
 
-## Zeabur 部署
+## 🚀 快速开始
 
-1. Fork 本仓库到你的 GitHub 账号
-2. 登录 [Zeabur](https://zeabur.com/)
-3. 创建新项目，选择从 GitHub 导入
-4. 选择本仓库
-5. 在环境变量中配置：
-   - `PUSHPLUS_TOKEN`: 你的 PushPlus Token
-   - `PUSHPLUS_TOPIC`: 群组编码
-6. 部署完成后服务会自动运行
+### 本地测试
 
-## 注意事项
+```bash
+# 测试RSS抓取和翻译功能
+node test-worker.js
 
-- 程序使用 nitter 提供的 RSS 源来获取推文
-- 请确保 PushPlus 配置正确
-- 程序需要持续运行才能保持监控
-- Zeabur 部署后会自动保持运行 
+# 测试推送功能
+node test-worker.js push
+```
+
+### Cloudflare Workers 部署
+
+1. 安装 Wrangler CLI
+```bash
+npm install -g wrangler
+```
+
+2. 登录 Cloudflare
+```bash
+wrangler login
+```
+
+3. 创建 KV 命名空间（用于存储已推送ID）
+```bash
+wrangler kv:namespace create "TRUMP_KV"
+```
+
+4. 修改 `wrangler.toml` 填入 KV ID
+
+5. 部署
+```bash
+wrangler deploy
+```
+
+### 配置 Cron 触发器
+
+在 Cloudflare Dashboard 中设置 Cron Triggers：
+- 表达式：`* * * * *`（每分钟执行）
+
+## 🔧 配置说明
+
+在 `cloudflare-worker.js` 中修改：
+
+```javascript
+const CONFIG = {
+  PUSHPLUS_TOKEN: 'your-token',      // PushPlus Token
+  PUSHPLUS_TOPIC: 'trump',           // 推送主题
+  RSS_URLS: [                        // RSS源列表
+    'https://rss.app/feeds/xxx.xml',
+  ]
+};
+```
+
+## 📡 API 接口
+
+| 路径 | 说明 |
+|------|------|
+| `/test` | 测试Worker状态 |
+| `/check` | 手动触发检查新推文 |
+| `/translate?text=xxx` | 测试翻译功能 |
+| `/rss` | 测试RSS抓取 |
+
+## 🎨 网页展示
+
+直接在浏览器打开 `index.html` 即可查看精美的推文展示页面：
+
+- 🌙 暗色主题，护眼设计
+- 📱 响应式布局，支持移动端
+- 🖼️ 支持推文图片展示
+- 🔄 自动刷新，实时更新
+- 🇨🇳 中英文对照显示
+
+## 📝 技术栈
+
+- **Runtime**: Cloudflare Workers
+- **翻译**: MyMemory API / Google Translate
+- **推送**: PushPlus
+- **数据源**: RSS.app
+- **前端**: TailwindCSS + Vanilla JS
+
+## 📄 License
+
+MIT License © 2026

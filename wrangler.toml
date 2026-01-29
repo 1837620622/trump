@@ -1,0 +1,13 @@
+name = "trump-tweet-monitor"
+main = "cloudflare-worker.js"
+compatibility_date = "2024-01-01"
+
+# KV命名空间绑定（用于存储已推送的推文ID）
+# 需要在Cloudflare Dashboard创建KV命名空间后填写ID
+# [[kv_namespaces]]
+# binding = "TRUMP_KV"
+# id = "your-kv-namespace-id"
+
+# Cron触发器：每分钟执行一次
+[triggers]
+crons = ["* * * * *"]
