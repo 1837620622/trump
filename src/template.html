@@ -19,15 +19,131 @@
         }
     </script>
     <style>
-        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
-        .gradient-bg { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
-        .tweet-card { transition: all 0.3s ease; }
-        .tweet-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .shimmer { background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        /* 玻璃拟态效果 */
+        .glass { 
+            background: rgba(255, 255, 255, 0.08); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
+        /* 渐变背景 - 更丰富的层次 */
+        .gradient-bg { 
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            background-attachment: fixed;
+        }
+        
+        /* 动态背景光效 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 80%, rgba(200, 16, 46, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(0, 40, 104, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.08) 0%, transparent 40%);
+            animation: bgFloat 20s ease-in-out infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(2%, 2%) rotate(1deg); }
+            66% { transform: translate(-1%, 1%) rotate(-1deg); }
+        }
+        
+        /* 推文卡片 - 弹性动画 */
+        .tweet-card { 
+            transition: transform 550ms linear(0, 0.1719, 0.4986, 0.7952, 0.9887, 1.0779, 1.0939, 1.0726, 1.0412, 1.0148, 0.9986, 0.9919, 0.9913, 0.9937, 0.9967, 0.999, 1.0003, 1),
+                        box-shadow 0.3s ease;
+        }
+        .tweet-card:hover { 
+            transform: translateY(-8px) scale(1.01); 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4), 0 0 30px rgba(255, 215, 0, 0.1);
+        }
+        
+        /* 加载动画 */
+        .shimmer { 
+            background: linear-gradient(90deg, rgba(31,41,55,0.8) 25%, rgba(55,65,81,0.9) 50%, rgba(31,41,55,0.8) 75%); 
+            background-size: 200% 100%; 
+            animation: shimmer 1.5s infinite;
+        }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        
+        /* 脉冲点 */
         .pulse-dot { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.9); } }
+        
+        /* 淡入动画 */
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(30px) scale(0.98); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
+        
+        /* 悬浮光效 */
+        .glow-gold { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+        .glow-blue { box-shadow: 0 0 20px rgba(0, 40, 104, 0.4); }
+        
+        /* 按钮悬停效果 */
+        .btn-hover {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .btn-hover::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn-hover:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* 统计卡片动画 */
+        .stat-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        
+        /* 渐变文字 */
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* 水印浮动动画 */
+        .watermark {
+            animation: watermarkFloat 3s ease-in-out infinite;
+        }
+        @keyframes watermarkFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,215,0,0.5); }
     </style>
 </head>
 <body class="gradient-bg min-h-screen font-sans text-white">
@@ -47,7 +163,7 @@
                         <span class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></span>
                         <span class="text-gray-400">实时更新</span>
                     </div>
-                    <button onclick="refreshTweets()" class="px-4 py-2 bg-trump-blue hover:bg-blue-700 rounded-lg transition flex items-center gap-2">
+                    <button onclick="refreshTweets()" class="btn-hover px-4 py-2 bg-gradient-to-r from-trump-blue to-blue-600 hover:from-blue-600 hover:to-trump-blue rounded-lg transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                         刷新
                     </button>
@@ -59,21 +175,41 @@
     <!-- Stats Bar -->
     <div class="max-w-6xl mx-auto px-4 py-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="glass rounded-xl p-4 border border-white/10">
-                <div class="text-3xl font-bold text-trump-gold" id="totalTweets">--</div>
-                <div class="text-sm text-gray-400">总推文数</div>
+            <div class="stat-card glass rounded-xl p-4 border border-white/10 hover:border-trump-gold/30">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">📊</span>
+                    <div>
+                        <div class="text-3xl font-bold gradient-text" id="totalTweets">--</div>
+                        <div class="text-sm text-gray-400">总推文数</div>
+                    </div>
+                </div>
             </div>
-            <div class="glass rounded-xl p-4 border border-white/10">
-                <div class="text-3xl font-bold text-green-400" id="todayTweets">--</div>
-                <div class="text-sm text-gray-400">今日更新</div>
+            <div class="stat-card glass rounded-xl p-4 border border-white/10 hover:border-green-400/30">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🟢</span>
+                    <div>
+                        <div class="text-3xl font-bold text-green-400" id="todayTweets">--</div>
+                        <div class="text-sm text-gray-400">今日更新</div>
+                    </div>
+                </div>
             </div>
-            <div class="glass rounded-xl p-4 border border-white/10">
-                <div class="text-3xl font-bold text-blue-400" id="lastUpdate">--</div>
-                <div class="text-sm text-gray-400">最后更新</div>
+            <div class="stat-card glass rounded-xl p-4 border border-white/10 hover:border-blue-400/30">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">⏰</span>
+                    <div>
+                        <div class="text-3xl font-bold text-blue-400" id="lastUpdate">--</div>
+                        <div class="text-sm text-gray-400">最后更新</div>
+                    </div>
+                </div>
             </div>
-            <div class="glass rounded-xl p-4 border border-white/10">
-                <div class="text-3xl font-bold text-purple-400" id="sourceCount">2</div>
-                <div class="text-sm text-gray-400">数据源</div>
+            <div class="stat-card glass rounded-xl p-4 border border-white/10 hover:border-purple-400/30">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">📡</span>
+                    <div>
+                        <div class="text-3xl font-bold text-purple-400" id="sourceCount">2</div>
+                        <div class="text-sm text-gray-400">数据源</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -95,7 +231,7 @@
             <div class="text-6xl mb-4">😕</div>
             <h3 class="text-xl font-semibold mb-2">加载失败</h3>
             <p class="text-gray-400 mb-4">无法获取推文数据，请稍后重试</p>
-            <button onclick="refreshTweets()" class="px-6 py-2 bg-trump-blue hover:bg-blue-700 rounded-lg transition">重新加载</button>
+            <button onclick="refreshTweets()" class="btn-hover px-6 py-2 bg-gradient-to-r from-trump-blue to-blue-600 rounded-lg transition-all duration-300 shadow-lg">重新加载</button>
         </div>
     </main>
 
@@ -121,10 +257,15 @@
     </section>
 
     <!-- Watermark -->
-    <div class="fixed bottom-4 right-4 glass rounded-lg px-4 py-2 border border-white/20 text-sm z-40">
-        <span class="text-trump-gold font-semibold">万能程序员</span>
-        <span class="text-white"> · </span>
-        <span class="text-blue-400">传康KK</span>
+    <div class="watermark fixed bottom-4 right-4 glass-strong rounded-xl px-5 py-3 border border-trump-gold/30 text-sm z-40 shadow-lg glow-gold">
+        <div class="flex items-center gap-2">
+            <span class="text-xl">🚀</span>
+            <div>
+                <span class="gradient-text font-bold">万能程序员</span>
+                <span class="text-white/60"> · </span>
+                <span class="text-blue-400 font-semibold">传康KK</span>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
