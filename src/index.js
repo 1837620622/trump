@@ -169,7 +169,7 @@ async function sendToPushPlus(title, content, env) {
         title: title,
         content: content,
         topic: CONFIG.PUSHPLUS_TOPIC,
-        template: 'txt'
+        template: 'html'
       })
     });
     
@@ -202,29 +202,34 @@ function extractTitleSummary(title) {
   return summary;
 }
 
-// ---------------------- 格式化消息 ----------------------
+// ---------------------- 格式化消息（HTML格式）----------------------
 async function formatTweetMessage(item) {
   // 翻译内容
   const translatedTitle = await translateToChineseMyMemory(item.title);
   
-  // 构建消息内容
-  let message = `🐦 特朗普最新动态
-
-⏰ ${item.pubDate}
-👤 ${item.creator || '@TrumpDailyPosts'}
-
-📝 原文：
-${item.title}
-
-🇨🇳 翻译：
-${translatedTitle}`;
+  // 构建 HTML 格式消息
+  let message = `<h3>🐦 特朗普最新动态</h3>
+<p><b>⏰ 时间：</b>${item.pubDate}</p>
+<p><b>👤 来源：</b>${item.creator || '@TrumpDailyPosts'}</p>
+<hr/>
+<p><b>📝 原文：</b></p>
+<p>${item.title}</p>
+<hr/>
+<p><b>🇨🇳 中文翻译：</b></p>
+<p style="color:#1890ff;">${translatedTitle}</p>`;
   
-  // 如果有图片，添加图片链接
+  // 如果有图片，使用 img 标签插入
   if (item.mediaUrl) {
-    message += `\n\n🖼️ 图片：${item.mediaUrl}`;
+    message += `<hr/><p><b>🖼️ 图片：</b></p>
+<p><img src="${item.mediaUrl}" style="max-width:100%;border-radius:8px;" /></p>`;
   }
   
-  message += `\n\n🔗 查看原文：${item.link}\n\n━━━━━━━━━━\n🚀 万能程序员 传康KK\n📱 微信：1837620622`;
+  message += `<hr/>
+<p><a href="${item.link}" target="_blank">🔗 查看原文</a></p>
+<br/>
+<p style="color:#999;font-size:12px;">━━━━━━━━━━</p>
+<p style="color:#ffa500;"><b>🚀 万能程序员 传康KK</b></p>
+<p style="color:#1890ff;">📱 微信：1837620622</p>`;
 
   return { message, translatedTitle };
 }
