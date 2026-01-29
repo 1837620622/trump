@@ -1,6 +1,14 @@
 name = "trump-tweet-monitor"
-main = "cloudflare-worker.js"
+main = "src/index.js"
 compatibility_date = "2024-01-01"
+
+# 启用 workers.dev 子域名
+workers_dev = true
+
+# 规则：将 HTML 文件作为文本导入
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
 
 # KV命名空间绑定（用于存储已推送的推文ID）
 [[kv_namespaces]]
