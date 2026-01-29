@@ -106,9 +106,9 @@ const CONFIG = {
 - **数据源**: RSS.app
 - **前端**: TailwindCSS + Vanilla JS
 
-## � 加入推送群组
+## 📱 加入订阅群组
 
-扫描下方二维码加入微信推送群，实时接收特朗普推文通知：
+扫描下方二维码加入PushPlus订阅群组，实时接收特朗普推文通知：
 
 <p align="center">
   <img src="assets/qrcode.png" alt="群组二维码" width="300">
@@ -118,6 +118,6 @@ const CONFIG = {
 > 
 > 📧 联系方式：**传康KK** | 微信：**1837620622**
 
-## �📄 License
+## �� License
 
 MIT License © 2026
