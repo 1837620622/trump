@@ -189,11 +189,15 @@ async function sendToPushPlus(title, content, env) {
 
 // ---------------------- 提取标题摘要 ----------------------
 function extractTitleSummary(title) {
-  // 提取前60个字符作为标题摘要
+  // 清理标题：移除 RT 前缀、HTML 标签、多余空格
   let summary = title.replace(/^RT by @\w+:\s*/i, '').trim();
   summary = summary.replace(/<[^>]+>/g, '').trim();
-  if (summary.length > 60) {
-    summary = summary.substring(0, 57) + '...';
+  summary = summary.replace(/\s+/g, ' ').trim();
+  // 移除 pic. 后缀
+  summary = summary.replace(/\s*pic\.?\s*$/i, '').trim();
+  // 截取前40个字符
+  if (summary.length > 40) {
+    summary = summary.substring(0, 37) + '...';
   }
   return summary;
 }
@@ -203,22 +207,24 @@ async function formatTweetMessage(item) {
   // 翻译内容
   const translatedTitle = await translateToChineseMyMemory(item.title);
   
-  const message = `🐦 特朗普相关推文
+  // 构建消息内容
+  let message = `🐦 特朗普最新动态
 
-⏰ 时间：${item.pubDate}
-👤 来源：${item.creator || 'Unknown'}
+⏰ ${item.pubDate}
+👤 ${item.creator || '@TrumpDailyPosts'}
 
 📝 原文：
 ${item.title}
 
 🇨🇳 翻译：
-${translatedTitle}
-
-🔗 链接：${item.link}
-
-——————————
-🚀 万能程序员 传康KK 出品
-📱 微信：1837620622`;
+${translatedTitle}`;
+  
+  // 如果有图片，添加图片链接
+  if (item.mediaUrl) {
+    message += `\n\n🖼️ 图片：${item.mediaUrl}`;
+  }
+  
+  message += `\n\n🔗 查看原文：${item.link}\n\n━━━━━━━━━━\n🚀 万能程序员 传康KK\n📱 微信：1837620622`;
 
   return { message, translatedTitle };
 }
@@ -285,9 +291,9 @@ async function checkNewTweets(env) {
   
   for (const item of itemsToPush) {
     const { message, translatedTitle } = await formatTweetMessage(item);
-    // 标题显示主要内容摘要
+    // 标题格式：特朗普最新推文 - 简介
     const titleSummary = extractTitleSummary(translatedTitle || item.title);
-    const pushTitle = `🐦 ${titleSummary}`;
+    const pushTitle = `🦅 特朗普最新推文 - ${titleSummary}`;
     const success = await sendToPushPlus(pushTitle, message, env);
     
     if (success) {
