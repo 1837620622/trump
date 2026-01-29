@@ -106,6 +106,18 @@ const CONFIG = {
 - **数据源**: RSS.app
 - **前端**: TailwindCSS + Vanilla JS
 
-## 📄 License
+## � 加入推送群组
+
+扫描下方二维码加入微信推送群，实时接收特朗普推文通知：
+
+<p align="center">
+  <img src="assets/qrcode.png" alt="群组二维码" width="300">
+</p>
+
+> ⚠️ **注意**：二维码有效期 **30天**，如已过期请联系更新
+> 
+> 📧 联系方式：**传康KK** | 微信：**1837620622**
+
+## �📄 License
 
 MIT License © 2026
