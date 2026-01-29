@@ -118,6 +118,6 @@ const CONFIG = {
 > 
 > 📧 联系方式：**传康KK** | 微信：**1837620622**
 
-## �� License
+## 📄 License
 
 MIT License © 2026
