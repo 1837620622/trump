@@ -12,10 +12,9 @@ const CONFIG = {
   PUSHPLUS_TOPIC: 'trump',
   PUSHPLUS_API: 'http://www.pushplus.plus/send',
   
-  // RSS源列表
+  // RSS源列表 - Truth Social 归档站
   RSS_URLS: [
-    'https://rss.app/feeds/l99qSNS36fUTlQo9.xml',
-    'https://rss.app/feeds/6FnbJXMy93igKIxb.xml'
+    'https://www.trumpstruth.org/feed'
   ],
   
   // 翻译API (MyMemory免费API)
@@ -186,10 +185,10 @@ async function formatTweetMessage(item) {
   // 翻译内容
   const translatedTitle = await translateToChineseMyMemory(item.title);
   
-  const message = `🐦 特朗普相关推文
+  const message = `🦅 特朗普 Truth Social
 
 ⏰ 时间：${item.pubDate}
-👤 来源：${item.creator || 'Unknown'}
+👤 来源：${item.creator || '@realDonaldTrump'}
 
 📝 原文：
 ${item.title}
@@ -264,7 +263,7 @@ async function checkNewTweets(env) {
   
   for (const item of itemsToPush) {
     const message = await formatTweetMessage(item);
-    const success = await sendToPushPlus('🐦 特朗普新推文', message, env);
+    const success = await sendToPushPlus('🦅 特朗普新动态', message, env);
     
     if (success) {
       pushedCount++;

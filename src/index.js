@@ -14,10 +14,9 @@ const CONFIG = {
   PUSHPLUS_TOPIC: 'trump',
   PUSHPLUS_API: 'http://www.pushplus.plus/send',
   
-  // RSS源列表
+  // RSS源列表 - Truth Social 归档站
   RSS_URLS: [
-    'https://rss.app/feeds/l99qSNS36fUTlQo9.xml',
-    'https://rss.app/feeds/6FnbJXMy93igKIxb.xml'
+    'https://www.trumpstruth.org/feed'
   ],
   
   // 翻译API (MyMemory免费API)
@@ -208,9 +207,9 @@ async function formatTweetMessage(item) {
   const translatedTitle = await translateToChineseMyMemory(item.title);
   
   // 构建 HTML 格式消息
-  let message = `<h3>🐦 特朗普最新动态</h3>
+  let message = `<h3>🦅 特朗普最新动态</h3>
 <p><b>⏰ 时间：</b>${item.pubDate}</p>
-<p><b>👤 来源：</b>${item.creator || '@TrumpDailyPosts'}</p>
+<p><b>👤 来源：</b>${item.creator || '@realDonaldTrump'}</p>
 <hr/>
 <p><b>📝 原文：</b></p>
 <p>${item.title}</p>
@@ -298,7 +297,7 @@ async function checkNewTweets(env) {
     const { message, translatedTitle } = await formatTweetMessage(item);
     // 标题格式：特朗普最新推文 - 简介
     const titleSummary = extractTitleSummary(translatedTitle || item.title);
-    const pushTitle = `🦅 特朗普最新推文 - ${titleSummary}`;
+    const pushTitle = `🦅 特朗普最新动态 - ${titleSummary}`;
     const success = await sendToPushPlus(pushTitle, message, env);
     
     if (success) {

@@ -38,7 +38,7 @@
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-trump-red to-trump-blue flex items-center justify-center text-2xl">🦅</div>
                     <div>
                         <h1 class="text-xl font-bold">Trump Tweet Monitor</h1>
-                        <p class="text-sm text-gray-400">特朗普推文实时监控</p>
+                        <p class="text-sm text-gray-400">特朗普 Truth Social 实时监控</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
@@ -71,7 +71,7 @@
                 <div class="text-sm text-gray-400">最后更新</div>
             </div>
             <div class="glass rounded-xl p-4 border border-white/10">
-                <div class="text-3xl font-bold text-purple-400" id="sourceCount">2</div>
+                <div class="text-3xl font-bold text-purple-400" id="sourceCount">1</div>
                 <div class="text-sm text-gray-400">数据源</div>
             </div>
         </div>
@@ -122,7 +122,7 @@
     <!-- Footer -->
     <footer class="border-t border-white/10 py-8 mt-12">
         <div class="max-w-6xl mx-auto px-4 text-center text-gray-500 text-sm">
-            <p>Powered by Cloudflare Workers | 数据来源: RSS.app</p>
+            <p>Powered by Cloudflare Workers | 数据来源: trumpstruth.org</p>
             <p class="mt-2">© 2026 Trump Tweet Monitor. All rights reserved.</p>
             <p class="mt-2">联系作者：传康KK | 微信：1837620622</p>
         </div>
@@ -132,8 +132,7 @@
         // 配置
         const CONFIG = {
             RSS_URLS: [
-                'https://rss.app/feeds/l99qSNS36fUTlQo9.xml',
-                'https://rss.app/feeds/6FnbJXMy93igKIxb.xml'
+                'https://www.trumpstruth.org/feed'
             ],
             TRANSLATE_API: 'https://api.mymemory.translated.net/get',
             CORS_PROXY: 'https://api.allorigins.win/raw?url='

@@ -8,8 +8,7 @@ const CONFIG = {
   PUSHPLUS_TOPIC: 'trump',
   PUSHPLUS_API: 'http://www.pushplus.plus/send',
   RSS_URLS: [
-    'https://rss.app/feeds/l99qSNS36fUTlQo9.xml',
-    'https://rss.app/feeds/6FnbJXMy93igKIxb.xml'
+    'https://www.trumpstruth.org/feed'
   ],
   TRANSLATE_API: 'https://api.mymemory.translated.net/get'
 };
@@ -157,10 +156,10 @@ async function testFullFlow() {
   const translated = await testTranslate(latestItem.title);
   
   // 3. 格式化消息
-  const message = `🐦 特朗普相关推文
+  const message = `🦅 特朗普 Truth Social
 
 ⏰ 时间：${latestItem.pubDate}
-👤 来源：${latestItem.creator || 'Unknown'}
+👤 来源：${latestItem.creator || '@realDonaldTrump'}
 
 📝 原文：
 ${latestItem.title}
@@ -181,7 +180,7 @@ ${translated}
   
   // 如果命令行有push参数，则执行推送
   if (process.argv.includes('push')) {
-    await testPushPlus('🐦 特朗普新推文（测试）', message);
+    await testPushPlus('🦅 特朗普新动态（测试）', message);
   }
 }
 
